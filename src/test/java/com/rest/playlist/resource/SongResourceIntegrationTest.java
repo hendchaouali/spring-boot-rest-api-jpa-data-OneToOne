@@ -2,11 +2,12 @@ package com.rest.playlist.resource;
 
 import com.rest.playlist.enums.SongCategory;
 import com.rest.playlist.enums.MelodyType;
-import com.rest.playlist.exception.ServiceExceptionHandler;
+import com.rest.playlist.web.exception.ServiceExceptionHandler;
 import com.rest.playlist.model.Melody;
 import com.rest.playlist.model.Song;
 import com.rest.playlist.repository.SongRepository;
 import com.rest.playlist.service.ISongService;
+import com.rest.playlist.web.resource.SongResource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import java.util.List;
 import static com.rest.playlist.TestUtils.asJsonString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,11 +89,12 @@ public class SongResourceIntegrationTest {
     }
 
     @Test
-    public void testGetNoContentSongs() throws Exception {
+    public void testGetEmptyListSongs() throws Exception {
         songRepository.deleteAll();
         mockMvc.perform(get("/api/songs")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
@@ -212,21 +215,21 @@ public class SongResourceIntegrationTest {
     public void testCreateSong() throws Exception {
         int sizeBefore = songRepository.findAll().size();
         Song savedSong = songRepository.saveAndFlush(mySong);
-        List<Song> songs = songRepository.findAll();
-
-        assertThat(songs).hasSize(sizeBefore + 1);
-
-        Song lastSong = songs.get(songs.size() - 1);
-
-        assertThat(lastSong.getTitle()).isEqualTo(savedSong.getTitle());
-        assertThat(lastSong.getDescription()).isEqualTo(savedSong.getDescription());
-        assertThat(lastSong.getCategory()).isEqualTo(savedSong.getCategory());
-        assertThat(lastSong.getDuration()).isEqualTo(savedSong.getDuration());
-        assertThat(lastSong.getArtistName()).isEqualTo(savedSong.getArtistName());
-        assertThat(lastSong.getMelody().getPitch()).isEqualTo(savedSong.getMelody().getPitch());
-        assertThat(lastSong.getMelody().getPitch()).isEqualTo(savedSong.getMelody().getPitch());
-        assertThat(lastSong.getMelody().getType()).isEqualTo(savedSong.getMelody().getType());
+        mockMvc.perform(post("/api/songs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(savedSong)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value(savedSong.getTitle()))
+                .andExpect(jsonPath("$.description").value(savedSong.getDescription()))
+                .andExpect(jsonPath("$.category").value(savedSong.getCategory().toString()))
+                .andExpect(jsonPath("$.duration").value(savedSong.getDuration()))
+                .andExpect(jsonPath("$.artistName").value(savedSong.getArtistName()))
+                .andExpect(jsonPath("$.melody.pitch").value(savedSong.getMelody().getPitch()))
+                .andExpect(jsonPath("$.melody.duration").value(savedSong.getMelody().getDuration()))
+                .andExpect(jsonPath("$.melody.type").value(savedSong.getMelody().getType().toString()));
     }
+
 
 
     @Test
