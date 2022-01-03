@@ -17,8 +17,8 @@ import javax.validation.constraints.Size;
 public class Melody extends AbstractAuditModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PLAYLIST_SEQ")
-    @SequenceGenerator(name = "PLAYLIST_SEQ", sequenceName = "playlist_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MELODY_SEQ")
+    @SequenceGenerator(name = "MELODY_SEQ", sequenceName = "melody_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "pitch")
