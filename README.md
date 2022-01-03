@@ -5,18 +5,18 @@ La relation OneToOne fait référence à la relation entre deux tables :
 
 * **Song** : a un identifiant, un titre, une description, une catégorie, une durée et le nom d'un artiste.
 
-* **Melody** : a un pitch, une durée et un type
+* **Melody** : a un identifiant, un pitch, une durée et un type
 
 Une Chanson peut être liée à une seule mélodie et vice versa.
 
-Apis aide à créer, récupérer, mettre à jour, supprimer des Song et des playlists.
+Apis aide à créer, récupérer, mettre à jour, supprimer des Song et des melody.
 
-Apis prend également en charge les méthodes de recherche personnalisées (query methods) telles que la recherche par catégorie ou par le nom de l’artiste ou par titre de playlist.
+Apis prend également en charge les méthodes de recherche personnalisées (query methods) telles que la recherche par catégorie ou par le nom de l’artiste ou par type de melody.
 
 ##### La relation OneToOne
 – L’annotation **@OneToOne** définit une relation 1:1 entre deux entités.
 
- L’annotation **@JoinColumn**  définit une colonne de clé étrangère
+– L’annotation **@JoinColumn**  définit une colonne de clé étrangère
 
 ##### Spring Boot
 Spring Boot est un projet Spring qui facilite le processus de configuration et de publication des applications.
@@ -51,7 +51,7 @@ L'image ci-dessous montre la structure finale du projet
 
 * **Pom.xml**
 
-Contient des dépendances pour Spring Boot. Dans notre cas, nous sommes besoin de ces dépendances.
+Contient des dépendances pour Spring Boot. Dans notre cas, nous avons besoin de ces dépendances.
 
 ```xml
 <dependencies>
@@ -157,7 +157,7 @@ spring.jpa.hibernate.ddl-auto=update
 ```
 ## II. Modèle
 * **AbstractAuditModel**
-Les deux modèles de l’application Playlist et Song auront des champs communs liés à l'audit tels que createdAt et updatedAt.
+Les deux modèles de l’application Melody et Song auront des champs communs liés à l'audit tels que createdAt et updatedAt.
 
 Il est préférable de faire abstraction de ces champs communs dans une classe de base distincte appelée AbstractAuditModel. Cette classe sera étendue par d'autres entités.
 
@@ -204,15 +204,15 @@ public abstract class AbstractAuditModel implements Serializable {
 
 * **Song.java**
 
-L’entité « Song » est mappé à une table nommée « songs » dans la base de données
+L’entité « Song » est mappée à une table nommée « songs » dans la base de données
 
-- l'annotation **@Entity** indique que la classe est une classe Java persistante.
+– l'annotation **@Entity** indique que la classe est une classe Java persistante.
 
 – l'annotation **@Table** fournit la table qui mappe cette entité.
 
 – l'annotation **@Id** est pour la clé primaire.
 
-– l'annotation **@GeneratedValue** est utilisée pour définir la stratégie de génération de la clé primaire. **GenerationType.SEQUENCE** signifie la génération de la clé primaire se fera par une séquence définie dans le SGBD, auquel on ajoute l’attribut generator.
+– l'annotation **@GeneratedValue** est utilisée pour définir la stratégie de génération de la clé primaire. **GenerationType.SEQUENCE** signifie que la génération de la clé primaire se fera par une séquence définie dans le SGBD, auquel on ajoute l’attribut generator.
 
 – l'annotation **@Column** est utilisée pour définir la colonne dans la base de données qui mappe le champ annoté.
   
@@ -267,7 +267,7 @@ public class Song extends AbstractAuditModel {
 
 * **Melody.java**
 
-L’entité « Playlist » est mappé à une table nommée « playlists » dans la base de données
+L’entité « Melody » est mappée à une table nommée « melody » dans la base de données
 
 – l'annotation **@JsonIgnore**  est utilisé au niveau du champ pour marquer une propriété ou une liste de propriétés à ignorer.
 
@@ -282,8 +282,8 @@ L’entité « Playlist » est mappé à une table nommée « playlists » dans 
 public class Melody extends AbstractAuditModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PLAYLIST_SEQ")
-    @SequenceGenerator(name = "PLAYLIST_SEQ", sequenceName = "playlist_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MELODY_SEQ")
+    @SequenceGenerator(name = "MELODY_SEQ", sequenceName = "melody_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "pitch")
@@ -503,7 +503,6 @@ Ce contrôleur expose des end-point pour faire les CRUD (créer, récupérer, me
     * **204 No Content** : La demande a répondu à la demande mais n'a pas besoin de retourner un corps d'entité
     * **400 Bad Request** : La requête n'a pas pu être comprise par le serveur en raison d'une syntaxe mal formée
     * **404 Not Found** : Le serveur n'a rien trouvé correspondant à l'URI de la requête
-    * **409 Conflict** : La demande n'a pas pu être traitée en raison d'un conflit avec l'état actuel de la ressource
 
 | Méthode HTTP | URI | Description | Codes d'états http |
 | ------------- | ------------- | ------------- | ------------- |
